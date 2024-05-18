@@ -1,0 +1,58 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+  
+  - name: update repository index
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+
+- hosts: web_server
+  become: true
+  tasks:
+
+  - name: install apache and php for web servers
+    dnf:
+      name:
+        - httpd
+        - php
+        - firewalld
+      state: latest 
+
+  - name: start httpd service
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+
+  - name: start firewalld service
+    service:
+      name: firewalld
+      state: started
+      enabled: yes
+
+  - name: copy default html files for site
+    copy:
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+- hosts: db_server
+  become: true
+  tasks:
+
+  - name: install mariadb package
+    dnf:
+      name: mariadb-server
+      state: latest
+
+  - name: start mariadb service
+    service:
+      name: mariadb
+      state: started
+      enabled: yes
