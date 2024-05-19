@@ -20,6 +20,7 @@
         - httpd
         - php
         - firewalld
+        - unzip
       state: latest 
 
   - name: start httpd service
@@ -41,6 +42,38 @@
       owner: root
       group: root
       mode: 0644
+
+  - name: change email address for admin
+    tags: apache,rocky,centos,httpd
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin ravi@ansible.com 
+    register: httpd
+
+  - name: restart httpd
+    tags: apache,rocky,centos,httpd
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed
+
+- hosts: rocky
+  become: true
+  tasks:
+
+  - name: install unzip
+    package:
+      name: unzip
+
+  - name: installing terraform from remote source and unziping it
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.8.3/terraform_1.8.3_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
 
 - hosts: db_server
   become: true
