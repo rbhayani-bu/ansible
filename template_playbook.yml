@@ -10,6 +10,12 @@
       update_only: yes
       update_cache: yes
 
+#  - name: create ansible user
+#    tag: always
+#    user:
+#      name: ansible
+#      group: root 
+
 - hosts: web_server
   become: true
   tasks:
